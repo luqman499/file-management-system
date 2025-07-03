@@ -1,0 +1,122 @@
+
+    
+    
+    .content-wrapper {
+        padding: 15px;
+    }
+    .card {
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .input-block.local-forms {
+        margin-bottom: 1rem;
+    }
+    .form-label {
+        font-weight: 500;
+        font-size: 0.875rem;
+        color: #495057;
+    }
+    .form-control-sm, .form-select {
+        font-size: 0.875rem;
+        background-color: #f8f9fa;
+    }
+    .text-danger {
+        font-size: 0.8rem;
+    }
+    .card-title {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    .quill-editor {
+        min-height: 200px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0 0 0.25rem 0.25rem;
+    }
+    .ql-editor {
+        min-height: 200px;
+        font-size: 14px;
+    }
+    .ql-toolbar {
+        border-radius: 0.25rem 0.25rem 0 0;
+    }
+    .ql-container {
+        border-radius: 0 0 0.25rem 0.25rem;
+        border: none;
+    }
+    .input-group .form-control.border-0 {
+        color: #6c757d;
+        font-size: 0.875rem;
+    }
+    .choose-file-btn, .remove-file, .replace-file, #add-attachment, .remove-attachment-row {
+        font-size: 0.875rem;
+    }
+    .attachment-row {
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        padding: 0.25rem;
+    }
+    .preview-container {
+        background: #f8f9fa;
+        padding: 5px;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+    }
+    .preview-container .file-container {
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 5px;
+    }
+    .preview-container .file-container:last-child {
+        border-bottom: none;
+    }
+    .preview-container img {
+        max-width: 100px;
+    }
+    .table-responsive {
+        border-radius: 8px;
+    }
+    .table thead th {
+        font-size: 0.9rem;
+        padding: 12px;
+        text-transform: uppercase;
+        border-bottom: 1px solid #dee2e6;
+    }
+    .table tbody td {
+        font-size: 0.875rem;
+        padding: 10px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    #user-search {
+        margin-bottom: 10px;
+    }
+    @media (max-width: 767px) {
+        .form-control-sm, .form-select {
+            font-size: 0.75rem;
+        }
+        .btn-sm {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+        }
+        .card-body {
+            padding: 10px;
+        }
+        .attachment-row {
+            padding: 0.15rem;
+        }
+        .table {
+            display: block;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .table thead th, .table tbody td {
+            min-width: 100px;
+        }
+    }
+    @font-face {
+        font-family: 'boxicons';
+        src: url('{{ asset('backend/vendor/fonts/boxicons/boxicons.woff2') }}') format('woff2');
+        font-display: swap;}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
