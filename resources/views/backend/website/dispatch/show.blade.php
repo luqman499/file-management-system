@@ -3,7 +3,7 @@
 
 
     <div class="content-wrapper">
-        addded the comment
+
         <section class="section container-fluid py-4">
             <div class="row">
                 <div class="col-lg-12">
