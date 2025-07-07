@@ -32,12 +32,13 @@ class DispatchDetail extends Model
     }
 
 
+
      public function scopeOfAssignedToMe($query)
     {
          return $query->where('user_id', auth()->user()->id)->where('status',  0);
     }
 
-   
+
 
  public function scopeApproved($query)
  {
@@ -60,6 +61,6 @@ class DispatchDetail extends Model
  }
 
 
-  
+
 }
 

@@ -77,10 +77,7 @@ class DispatchController extends Controller
                         'status' => 0,
                     ]);
                 }
-            }else{
-
             }
-
             // Handle selected users
             if ($request->filled('selected_users')) {
                 foreach ($request->selected_users as $user_id) {

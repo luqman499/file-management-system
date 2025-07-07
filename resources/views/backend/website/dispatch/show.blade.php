@@ -60,7 +60,7 @@
                             </div>
                             <!-- Paras/Remarks/Description -->
                             <div class="mb-5">
-                                <h6 class="fw-semibold text-dark mb-3 border-bottom pb-2">Paras/Remarks/Description</h6>
+                                <h6 class="fw-semibold text-dark mb-3 border-bottom pb-2">Remarks/Description</h6>
                                 <div class="p-3 bg-light rounded-2 border">
                                     @if($dispatch->description)
                                         <p class="mb-0 text-dark">{!! nl2br(e($dispatch->description)) !!}</p>
