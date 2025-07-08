@@ -97,6 +97,7 @@ class DispatchController extends Controller
         }
     }
 
+
     public function show($id)
     {
         try {
@@ -109,7 +110,6 @@ class DispatchController extends Controller
                 'flag',
 
             ])->find($id);
-//            dd($dispatch->dispatchDocuments);
             $offices = Office::pluck('title', 'id');
             $users = User::with(['office:id,title', 'department:id,name'])
                 ->get();
@@ -147,11 +147,53 @@ class DispatchController extends Controller
 
         return view('backend.website.dispatch.edit', compact('model', 'flags', 'offices', 'departments', 'folders', 'users'));
     }
+//    public function update(DispatchUpdateRequest $request, $id)
+//    {
+//        try {
+//            $model = Dispatch::find($id);
+//             $model->flag_id = $request->flag_id;
+//            $model->folder_id = $request->folder_id;
+//            $model->office_id = $request->office_id;
+//            $model->title = $request->title;
+//            $model->dispatch_number = $request->dispatch_number;
+//            $model->file_number = $request->file_number;
+//            $model->description = $request->description;
+//            $model->date = $request->date;
+//            $model->time = $request->time;
+//            $model->send_to = $request->send_to;
+//            $model->received_from = $request->received_from;
+//            $model->save();
+//
+//            if ($request->hasFile('attachments')) {
+//                foreach ($request->file('attachments') as $attachment) {
+//                    $fileName = 'dispatch_document_' . uniqid() . '.' . $attachment->getClientOriginalExtension();
+//                    $filePath = $attachment->move('public/documents/', $fileName);
+//
+//                    DispatchDocument::create([
+//                        'dispatch_id' => $model->id,
+//                        'file' => $filePath
+//                    ]);
+//                }
+//            }
+//
+//            if ($request->filled('selected_users')) {
+//                $model->users()->sync($request->selected_users);
+//            } else {
+//                $model->users()->sync([]);
+//            }
+//
+//            flash()->success('Dispatch updated successfully!');
+//            return redirect()->route('dispatch.index');
+//        } catch (\Exception $e) {
+//            flash()->error('Something went wrong: ' . $e->getMessage());
+//            return back()->withInput();
+//        }
+//    }
     public function update(DispatchUpdateRequest $request, $id)
     {
         try {
-            $model = Dispatch::find($id);
-             $model->flag_id = $request->flag_id;
+            $model = Dispatch::findOrFail($id);
+            $model->flag_id = $request->flag_id;
             $model->folder_id = $request->folder_id;
             $model->office_id = $request->office_id;
             $model->title = $request->title;
@@ -164,22 +206,30 @@ class DispatchController extends Controller
             $model->received_from = $request->received_from;
             $model->save();
 
+            // Handle attachments
             if ($request->hasFile('attachments')) {
                 foreach ($request->file('attachments') as $attachment) {
                     $fileName = 'dispatch_document_' . uniqid() . '.' . $attachment->getClientOriginalExtension();
                     $filePath = $attachment->move('public/documents/', $fileName);
-
                     DispatchDocument::create([
                         'dispatch_id' => $model->id,
-                        'file' => $filePath
+                        'title' => $attachment->getClientOriginalName(),
+                        'file' => $filePath,
+                        'status' => 0,
                     ]);
                 }
             }
 
+            // Handle selected users
             if ($request->filled('selected_users')) {
-                $model->users()->sync($request->selected_users);
-            } else {
-                $model->users()->sync([]);
+                DispatchDetail::where('dispatch_id', $model->id)->delete();
+                foreach ($request->selected_users as $user_id) {
+                    DispatchDetail::create([
+                        'dispatch_id' => $model->id,
+                        'user_id' => $user_id,
+                        'status' => 0,
+                    ]);
+                }
             }
 
             flash()->success('Dispatch updated successfully!');
@@ -218,20 +268,20 @@ class DispatchController extends Controller
         $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')->ofAssignedToMe()->get();
         return view('backend.website.inbox.assigned.index', compact('models'));
     }
-    public function approved($id){
+    public function approved(){
     $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')->ofApproved()->ofAssignedToMe()->get();
     return view('backend.website.inbox.approved.index', compact('models'));
  }
  public function rejected($id){
-    $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')->ofRejected->ofAssignedToMe()->get();
+    $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')->ofRejected()->ofAssignedToMe()->get();
     return view('backend.website.inbox.rejected.index', compact('models'));
  }
  public function returned($id){
-    $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')->ofReturned->ofAssignedToMe()->get();
+    $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')->ofReturned()->ofAssignedToMe()->get();
     return view('backend.website.inbox.returned.index', compact('models'));
  }
  public function recommended($id){
-    $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')->ofRecommended->ofAssignedToMe()->get();
+    $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')->ofRecommended()->ofAssignedToMe()->get();
     return view('backend.website.inbox.recommended.index', compact('models'));
 }
 

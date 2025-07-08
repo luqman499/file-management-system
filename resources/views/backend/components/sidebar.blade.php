@@ -189,19 +189,19 @@
       <a href="{#}" class="menu-link">All</a>
     </li>
     <li class="menu-item">
-      <a href="{{ route('dispatch.returned')}}" class="menu-link">Returned</a>
+      <a href="{{ route('dispatches.returned')}}" class="menu-link">Returned</a>
     </li>
     <li class="menu-item">
-      <a href="{{ route('dispatch.rejected')}}" class="menu-link">Rejected</a>
+      <a href="{{ route('dispatches.rejected')}}" class="menu-link">Rejected</a>
     </li>
     <li class="menu-item">
-      <a href="{{ route('dispatch.recommended') }}" class="menu-link">Recommend</a>
+      <a href="{{ route('dispatches.recommended') }}" class="menu-link">Recommend</a>
     </li>
     <li class="menu-item">
-      <a href="{{ route('dispatch.approved')}}" class="menu-link">Approved</a>
+      <a href="{{ route('dispatches.approved')}}" class="menu-link">Approved</a>
     </li>
      <li class="menu-item">
-        <a href="{{ route('dispatch.assigned_to_me') }}" class="menu-link">Assigned</a>
+        <a href="{{ route('dispatches.assigned_to_me') }}" class="menu-link">Assigned</a>
     </li>
   </ul>
 </li>

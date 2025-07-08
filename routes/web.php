@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\AssignedController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -11,15 +10,11 @@ use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\DispatchController;
 use App\Http\Controllers\FlagController;
 use App\Http\Controllers\FolderController;
-use App\Http\Controllers\StatusController;
-
-// Route::get('/', function () {
-//     return view('frontend.auth.index');
-// });
 
 Route::get('/', function () {
     return view('auth.login');
 })->name('login');
+
 
 
 Route::middleware('auth')->prefix('backend')->group(function() {
@@ -33,7 +28,7 @@ Route::middleware('auth')->prefix('backend')->group(function() {
         'flag' => FlagController::class,
         'folder' => FolderController::class,
         'dispatch' => DispatchController::class,
-     
+
 
     ]);
 //    department
@@ -51,12 +46,12 @@ Route::middleware('auth')->prefix('backend')->group(function() {
     //dispatch//
     Route::get('/dispatch/delete/{id}', [DispatchController::class, 'delete'])->name('dispatch.delete');
 
-   Route::get('/dispatch/assigned_to_me/tasks', [DispatchController::class, 'assigned'])->name('dispatch.assigned_to_me');
-   Route::get('/dispatch/approved', [DispatchController::class, 'approved'])->name('dispatch.approved');
-    Route::get('/dispatch/rejected', [DispatchController::class, 'rejected'])->name('dispatch.rejected');
-    Route::get('/dispatch/returned', [DispatchController::class, 'returned'])->name('dispatch.returned');
-    Route::get('/dispatch/recommended', [DispatchController::class, 'recommended'])->name('dispatch.recommended');   
-    Route::post('/dispatch/update-status/{id}', [DispatchController::class, 'updateStatus'])->name('dispatch.updateStatus');
+   Route::get('/dispatches/assigned_to_me/tasks', [DispatchController::class, 'assigned'])->name('dispatches.assigned_to_me');
+   Route::get('/dispatches/approved', [DispatchController::class, 'approved'])->name('dispatches.approved');
+    Route::get('/dispatches/rejected', [DispatchController::class, 'rejected'])->name('dispatches.rejected');
+    Route::get('/dispatches/returned', [DispatchController::class, 'returned'])->name('dispatches.returned');
+    Route::get('/dispatches/recommended', [DispatchController::class, 'recommended'])->name('dispatches.recommended');
+    Route::post('/dispatches/update-status/{id}', [DispatchController::class, 'updateStatus'])->name('dispatch.updateStatus');
 
 
 });

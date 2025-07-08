@@ -40,7 +40,7 @@ class DispatchDetail extends Model
 
 
 
- public function scopeApproved($query)
+ public function scopeOfApproved($query)
  {
      return $query->where('status', 1);
  }
@@ -59,8 +59,6 @@ class DispatchDetail extends Model
  {
      return $query->where('status', 4);
  }
-
-
 
 }
 

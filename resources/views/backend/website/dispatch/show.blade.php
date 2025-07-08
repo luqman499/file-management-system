@@ -41,7 +41,8 @@
                                     <div class="col-md-6">
                                         <div class="detail-item d-flex align-items-center mb-2">
                                             <span class="fw-medium text-muted me-3" style="min-width: 120px;">Submitted By:</span>
-                                            <span>{{ \App\Models\User::find($dispatch->user_id)->name ?? 'N/A' }}</span>
+                                            <span>{{ $dispatch->users->name ?? 'N/A' }}</span>
+{{--                                            <span>{{ $dispatch && $dispatch->user_id ? \App\Models\User::find($dispatch->user_id)->name : 'N/A' }}</span>--}}
                                         </div>
                                         <div class="detail-item d-flex align-items-center mb-2">
                                             <span class="fw-medium text-muted me-3" style="min-width: 120px;">Office:</span>
@@ -93,7 +94,6 @@
                                                         <td>{{ $attachment->title ?? 'Untitled Document' }}</td>
                                                         <!-- File Preview or Icon -->
                                                         <td>
-                                                        <td>
                                                             @if(in_array(strtolower(pathinfo($attachment->file, PATHINFO_EXTENSION)), ['png', 'jpg', 'jpeg']))
                                                                 <img src="{{ asset($attachment->file) }}"
                                                                      alt="{{ $attachment->title ?? 'Attachment' }}"
@@ -104,7 +104,6 @@
                                                                 <br>
                                                                 <small>{{ strtoupper(pathinfo($attachment->file, PATHINFO_EXTENSION)) }}</small>
                                                             @endif
-                                                        </td>
                                                         </td>
 
                                                         <!-- Action Buttons -->

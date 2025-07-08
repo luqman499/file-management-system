@@ -17,7 +17,7 @@ class UserSeeder extends Seeder
         [
             [
                 'name' => 'John Doe',
-                'email' => 'tajtariq227@gmail.com',
+                'email' => 'user@gmail.com',
                 'cnic' => '1214'
 
             ],
