@@ -272,17 +272,22 @@ class DispatchController extends Controller
     $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')->ofApproved()->ofAssignedToMe()->get();
     return view('backend.website.inbox.approved.index', compact('models'));
  }
- public function rejected($id){
+  public function rejected(){
     $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')->ofRejected()->ofAssignedToMe()->get();
     return view('backend.website.inbox.rejected.index', compact('models'));
  }
- public function returned($id){
+  public function returned(){
     $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')->ofReturned()->ofAssignedToMe()->get();
     return view('backend.website.inbox.returned.index', compact('models'));
  }
- public function recommended($id){
+  public function recommended(){
     $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')->ofRecommended()->ofAssignedToMe()->get();
     return view('backend.website.inbox.recommended.index', compact('models'));
 }
+ public function allTasks()
+    {
+        $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')->get();
+        return view('backend.website.inbox.all.index', compact('models'));
+    }
 
 }

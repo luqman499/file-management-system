@@ -35,7 +35,8 @@ class DispatchDetail extends Model
 
      public function scopeOfAssignedToMe($query)
     {
-         return $query->where('user_id', auth()->user()->id)->where('status',  0);
+         return $query->where('user_id', auth()->user()->id);
+//         return $query->where('user_id', auth()->user()->id)->where('status',  0);
     }
 
 
@@ -45,17 +46,17 @@ class DispatchDetail extends Model
      return $query->where('status', 1);
  }
 
- public function scopeRejected($query)
+ public function scopeOfRejected($query)
  {
      return $query->where('status', 2);
  }
 
- public function scopeReturned($query)
+ public function scopeOfReturned($query)
  {
      return $query->where('status', 3);
  }
 
- public function scopeRecommended($query)
+ public function scopeOfRecommended($query)
  {
      return $query->where('status', 4);
  }

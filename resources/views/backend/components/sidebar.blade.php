@@ -185,8 +185,9 @@
     <div>Inbox</div>
   </a>
   <ul class="menu-sub">
+
     <li class="menu-item">
-      <a href="{#}" class="menu-link">All</a>
+      <a href="{{route('dispatches.all')}}" class="menu-link">All</a>
     </li>
     <li class="menu-item">
       <a href="{{ route('dispatches.returned')}}" class="menu-link">Returned</a>

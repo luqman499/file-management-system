@@ -1,5 +1,5 @@
 @extends('backend.layout.auth')
-@section('content')
+@section('backend')
 <div class="container">
     <h4 class="mb-4">All Assigned Dispatches</h4>
 

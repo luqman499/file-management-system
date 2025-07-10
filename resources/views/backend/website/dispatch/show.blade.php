@@ -177,41 +177,6 @@
                                     <p class="text-muted">No dispatch details available.</p>
                                 @endif
                             </div>
-                            <!-- Dispatch Details Documents -->
-{{--                            <div class="mb-5">--}}
-{{--                                <h6 class="fw-semibold text-dark mb-3 border-bottom pb-2">Dispatch Details Documents</h6>--}}
-{{--                                <div class="table-responsive rounded-2 border">--}}
-{{--                                    <table class="table table-hover mb-0">--}}
-{{--                                        <thead class="bg-light">--}}
-{{--                                            <tr>--}}
-{{--                                                <th scope="col" class="fw-semibold text-muted">S#</th>--}}
-{{--                                                <th scope="col" class="fw-semibold text-muted">Title</th>--}}
-{{--                                                <th scope="col" class="fw-semibold text-muted">File</th>--}}
-{{--                                            </tr>--}}
-{{--                                        </thead>--}}
-{{--                                        <tbody>--}}
-{{--                                            @forelse($dispatch->dispatchDocuments as $document)--}}
-{{--                                                <tr class="transition-all">--}}
-{{--                                                    <td>{{ $loop->iteration }}</td>--}}
-{{--                                                    <td>{{ $document->title ?? 'N/A' }}</td>--}}
-{{--                                                    <td>--}}
-{{--                                                        <div class="d-flex gap-2">--}}
-{{--                                                            <a href="{{ asset($document->file) }}" target="_blank" class="btn btn-outline-primary btn-sm">--}}
-{{--                                                                <i class="bi bi-eye me-1"></i>Preview--}}
-{{--                                                            </a>--}}
-{{--                                                            <a href="{{ asset($document->file) }}" download class="btn btn-outline-success btn-sm">--}}
-{{--                                                                <i class="bi bi-download me-1"></i>Download--}}
-{{--                                                            </a>--}}
-{{--                                                        </div>--}}
-{{--                                            @empty--}}
-{{--                                                <tr>--}}
-{{--                                                    <td colspan="4" class="text-muted">No documents for this detail.</td>--}}
-{{--                                                </tr>--}}
-{{--                                            @endforelse--}}
-{{--                                        </tbody>--}}
-{{--                                    </table>--}}
-{{--                                </div>--}}
-{{--                            </div>--}}
 
                             <!-- Update Dispatch Form -->
                             <div class="col-12 mb-5">
