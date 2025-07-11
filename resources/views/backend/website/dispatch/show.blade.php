@@ -1,9 +1,8 @@
+
 @extends('backend.layout.auth')
 @section('backend')
 
-
     <div class="content-wrapper">
-
         <section class="section container-fluid py-4">
             <div class="row">
                 <div class="col-lg-12">
@@ -42,7 +41,6 @@
                                         <div class="detail-item d-flex align-items-center mb-2">
                                             <span class="fw-medium text-muted me-3" style="min-width: 120px;">Submitted By:</span>
                                             <span>{{ $dispatch->users->name ?? 'N/A' }}</span>
-{{--                                            <span>{{ $dispatch && $dispatch->user_id ? \App\Models\User::find($dispatch->user_id)->name : 'N/A' }}</span>--}}
                                         </div>
                                         <div class="detail-item d-flex align-items-center mb-2">
                                             <span class="fw-medium text-muted me-3" style="min-width: 120px;">Office:</span>
@@ -72,56 +70,49 @@
                             </div>
                             <!-- Attachments -->
                             <div class="mb-5">
-
                                 <h6 class="fw-semibold text-dark mb-3 border-bottom pb-2">Attachments</h6>
-{{--                                @dd($dispatch->dispatchDocuments)--}}
                                 @if($dispatch->dispatchDocuments->isNotEmpty())
                                     <div class="table-responsive">
                                         <table class="table table-bordered align-middle">
                                             <thead class="table-light">
-                                                <tr>
-                                                    <th style="width: 5%;">#</th>
-                                                    <th style="width: 25%;">Title</th>
-                                                    <th style="width: 20%;">File</th>
-                                                    <th style="width: 30%;">Actions</th>
-                                                </tr>
+                                            <tr>
+                                                <th style="width: 5%;">#</th>
+                                                <th style="width: 25%;">Title</th>
+                                                <th style="width: 20%;">File</th>
+                                                <th style="width: 30%;">Actions</th>
+                                            </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach ($dispatch->dispatchDocuments as $index => $attachment)
-                                                    <tr>
-                                                        <td>{{ $loop->iteration }}</td>
-                                                        <!-- Title -->
-                                                        <td>{{ $attachment->title ?? 'Untitled Document' }}</td>
-                                                        <!-- File Preview or Icon -->
-                                                        <td>
-                                                            @if(in_array(strtolower(pathinfo($attachment->file, PATHINFO_EXTENSION)), ['png', 'jpg', 'jpeg']))
-                                                                <img src="{{ asset($attachment->file) }}"
-                                                                     alt="{{ $attachment->title ?? 'Attachment' }}"
-                                                                     class="rounded"
-                                                                     style="max-width: 100px; height: auto;">
-                                                            @else
-                                                                <i class="bi bi-file-earmark-text fs-3 text-primary"></i>
-                                                                <br>
-                                                                <small>{{ strtoupper(pathinfo($attachment->file, PATHINFO_EXTENSION)) }}</small>
-                                                            @endif
-                                                        </td>
-
-                                                        <!-- Action Buttons -->
-                                                        <td>
-                                                            <div class="d-flex gap-2">
-                                                                <a href="{{ asset($attachment->file) }}" target="_blank"
-                                                                   class="btn btn-outline-primary btn-sm" title="Preview">
-                                                                    <i class="bi bi-eye me-1"></i>Preview
-                                                                </a>
-                                                                <a href="{{ asset( $attachment->file) }}" download
-                                                                   class="btn btn-outline-success btn-sm" title="Download">
-                                                                    <i class="bi bi-download me-1"></i>Download
-                                                                </a>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-
+                                            @foreach ($dispatch->dispatchDocuments as $index => $attachment)
+                                                <tr>
+                                                    <td>{{ $loop->iteration }}</td>
+                                                    <td>{{ $attachment->title ?? 'Untitled Document' }}</td>
+                                                    <td>
+                                                        @if(in_array(strtolower(pathinfo($attachment->file, PATHINFO_EXTENSION)), ['png', 'jpg', 'jpeg']))
+                                                            <img src="{{ asset($attachment->file) }}"
+                                                                 alt="{{ $attachment->title ?? 'Attachment' }}"
+                                                                 class="rounded"
+                                                                 style="max-width: 100px; height: auto;">
+                                                        @else
+                                                            <i class="bi bi-file-earmark-text fs-3 text-primary"></i>
+                                                            <br>
+                                                            <small>{{ strtoupper(pathinfo($attachment->file, PATHINFO_EXTENSION)) }}</small>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        <div class="d-flex gap-2">
+                                                            <a href="{{ asset($attachment->file) }}" target="_blank"
+                                                               class="btn btn-outline-primary btn-sm" title="Preview">
+                                                                <i class="bi bi-eye me-1"></i>Preview
+                                                            </a>
+                                                            <a href="{{ asset($attachment->file) }}" download
+                                                               class="btn btn-outline-success btn-sm" title="Download">
+                                                                <i class="bi bi-download me-1"></i>Download
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
                                             </tbody>
                                         </table>
                                     </div>
@@ -129,8 +120,6 @@
                                     <p class="text-muted">No attachments available.</p>
                                 @endif
                             </div>
-
-
                             <!-- Dispatch Details Data -->
                             <div class="mb-5">
                                 <h6 class="fw-semibold text-dark mb-3 border-bottom pb-2">Dispatch Details</h6>
@@ -138,38 +127,38 @@
                                     <div class="table-responsive rounded-2 border">
                                         <table class="table table-hover mb-0">
                                             <thead class="bg-light">
-                                                <tr>
-                                                    <th scope="col" class="fw-semibold text-muted">S#</th>
-                                                    <th scope="col" class="fw-semibold text-muted">Remark</th>
-                                                    <th scope="col" class="fw-semibold text-muted">Status</th>
-                                                    <th scope="col" class="fw-semibold text-muted">Associated User</th>
-                                                    <th scope="col" class="fw-semibold text-muted">Created At</th>
-                                                </tr>
+                                            <tr>
+                                                <th scope="col" class="fw-semibold text-muted">S#</th>
+                                                <th scope="col" class="fw-semibold text-muted">Remark</th>
+                                                <th scope="col" class="fw-semibold text-muted">Status</th>
+                                                <th scope="col" class="fw-semibold text-muted">Associated User</th>
+                                                <th scope="col" class="fw-semibold text-muted">Created At</th>
+                                            </tr>
                                             </thead>
                                             <tbody>
-                                                @foreach($dispatch->dispatchDetails as $index => $detail)
-                                                    <tr class="transition-all">
-                                                        <td>{{ $index + 1 }}</td>
-                                                        <td>{{ $detail->remark ?? 'N/A' }}</td>
-                                                        <td>
-                                                            @if($detail->status == 0)
-                                                                <span class="badge bg-secondary">Pending</span>
-                                                            @elseif($detail->status == 1)
-                                                                <span class="badge bg-success">Approved</span>
-                                                            @elseif($detail->status == 2)
-                                                                <span class="badge bg-danger">Rejected</span>
-                                                            @elseif($detail->status == 3)
-                                                                <span class="badge bg-warning">Returned</span>
-                                                            @elseif($detail->status == 4)
-                                                                <span class="badge bg-info">Recommended</span>
-                                                            @else
-                                                                <span class="badge bg-secondary">Unknown</span>
-                                                            @endif
-                                                        </td>
-                                                        <td>{{ optional($detail->user)->name ?? 'N/A' }}</td>
-                                                        <td>{{ $detail->created_at->format('d M Y, H:i') }}</td>
-                                                    </tr>
-                                                @endforeach
+                                            @foreach($dispatch->dispatchDetails as $index => $detail)
+                                                <tr class="transition-all">
+                                                    <td>{{ $index + 1 }}</td>
+                                                    <td>{{ $detail->remark ?? 'N/A' }}</td>
+                                                    <td>
+                                                        @if($detail->status == 0)
+                                                            <span class="badge bg-secondary">Pending</span>
+                                                        @elseif($detail->status == 1)
+                                                            <span class="badge bg-success">Approved</span>
+                                                        @elseif($detail->status == 2)
+                                                            <span class="badge bg-danger">Rejected</span>
+                                                        @elseif($detail->status == 3)
+                                                            <span class="badge bg-warning">Returned</span>
+                                                        @elseif($detail->status == 4)
+                                                            <span class="badge bg-info">Recommended</span>
+                                                        @else
+                                                            <span class="badge bg-secondary">Unknown</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ optional($detail->user)->name ?? 'N/A' }}</td>
+                                                    <td>{{ $detail->created_at->format('d M Y, H:i') }}</td>
+                                                </tr>
+                                            @endforeach
                                             </tbody>
                                         </table>
                                     </div>
@@ -177,25 +166,24 @@
                                     <p class="text-muted">No dispatch details available.</p>
                                 @endif
                             </div>
-
                             <!-- Update Dispatch Form -->
                             <div class="col-12 mb-5">
                                 {!! html()->form('POST', route('dispatch.updateStatus', $dispatch->id))->attribute('enctype', 'multipart/form-data')->id('update-form')->open() !!}
                                 @csrf
                                 <!-- Para/Remark -->
                                 <div class="col-12 mb-4">
-                                    <label for="description" class="form-label fw-medium text-dark">Para/Remark</label>
+                                    <label for="remark" class="form-label fw-medium text-dark">Para/Remarks</label>
                                     <div id="quill-editor" class="quill-editor border rounded-2"></div>
-                                    <input type="hidden" name="description" id="description">
-                                    @error('description')
-                                        <span class="text-danger small">{{ $message }}</span>
+                                    <input type="hidden" name="remark" id="remark">
+                                    @error('remark')
+                                    <span class="text-danger small">{{ $message }}</span>
                                     @enderror
                                 </div>
                                 <!-- Row for Attach_file and Status -->
                                 <div class="row mb-4">
                                     <div class="col-8">
                                         <label for="attachment" class="form-label fw-medium text-dark">Attachments</label>
-                                        <div class="border rounded  bg-light">
+                                        <div class="border rounded bg-light">
                                             <div class="d-flex justify-content-between align-items-center mb-2">
                                                 <span class="text-muted ms-2 mt-2">Select files (JPEG, PNG, PDF)</span>
                                                 <button type="button" class="btn btn-sm btn-primary mt-2 me-2" id="choose-file" data-bs-toggle="tooltip" title="Add new files">
@@ -207,9 +195,9 @@
                                             <div id="attachment-preview" class="row g-3 mt-2" style="display: none;"></div>
                                         </div>
                                         @error('attachment.*')
-                                            <span class="text-danger small">{{ $message }}</span>
+                                        <span class="text-danger small">{{ $message }}</span>
                                         @enderror
-                                   </div>
+                                    </div>
                                     <!-- Status Select -->
                                     <div class="col-4">
                                         <label for="status" class="form-label fw-medium text-dark">Status</label>
@@ -221,7 +209,7 @@
                                             <option value="4">Recommended</option>
                                         </select>
                                         @error('status')
-                                            <span class="text-danger small">{{ $message }}</span>
+                                        <span class="text-danger small">{{ $message }}</span>
                                         @enderror
                                     </div>
                                 </div>
@@ -234,14 +222,14 @@
                                     <div class="table-responsive rounded-2 border">
                                         <table class="table table-hover mb-0" id="user-table" style="display: none;">
                                             <thead class="bg-light">
-                                                <tr>
-                                                    <th scope="col" class="fw-semibold text-muted">S#</th>
-                                                    <th scope="col" class="fw-semibold text-muted">Name</th>
-                                                    <th scope="col" class="fw-semibold text-muted">Email</th>
-                                                    <th scope="col" class="fw-semibold text-muted">Office</th>
-                                                    <th scope="col" class="fw-semibold text-muted">Department</th>
-                                                    <th scope="col" class="fw-semibold text-muted">Select</th>
-                                                </tr>
+                                            <tr>
+                                                <th scope="col" class="fw-semibold text-muted">S#</th>
+                                                <th scope="col" class="fw-semibold text-muted">Name</th>
+                                                <th scope="col" class="fw-semibold text-muted">Email</th>
+                                                <th scope="col" class="fw-semibold text-muted">Office</th>
+                                                <th scope="col" class="fw-semibold text-muted">Department</th>
+                                                <th scope="col" class="fw-semibold text-muted">Select</th>
+                                            </tr>
                                             </thead>
                                             <tbody id="user-table-body"></tbody>
                                         </table>
@@ -249,15 +237,14 @@
                                     <p class="text-muted mt-2" id="no-users-message" style="display: none;">No users available.</p>
                                 </div>
                                 <!-- Submit Button -->
-                               <div class="d-flex justify-content-end">
-                               <button type="submit" class="btn btn-primary">Submit</button>
-                           </div>
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-primary">Submit</button>
+                                </div>
                                 {!! html()->form()->close() !!}
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
         </section>
     </div>
     <!-- CSRF Token -->
@@ -339,7 +326,6 @@
             height: auto;
             margin-right: 0.5rem;
         }
-        /* New Attachment Card Styles */
         .attachment-card {
             border: 1px solid #dee2e6;
             border-radius: 0.5rem;
@@ -415,7 +401,7 @@
             }
         }
     </style>
-    <!-- JavaScript -->
+
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const updateForm = document.getElementById('update-form');
@@ -429,6 +415,7 @@
             const noUsersMessage = document.getElementById('no-users-message');
             let currentFilteredUsers = allUsers;
             let selectedFiles = [];
+
             // Initialize Quill Editor
             try {
                 const quill = new Quill('#quill-editor', {
@@ -438,16 +425,19 @@
                     },
                     placeholder: 'Enter remarks or description...'
                 });
-                const descriptionInput = document.getElementById('description');
+                const remarkInput = document.getElementById('remark');
                 quill.on('text-change', () => {
-                    descriptionInput.value = quill.root.innerHTML;
+                    remarkInput.value = quill.getText().trim();
+                    console.log('Quill content:', remarkInput.value);
                 });
             } catch (error) {
                 console.error('Quill initialization error:', error);
             }
+
             // Initialize Bootstrap Tooltips
             const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
             const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+
             // Attachment handling
             function updateAttachmentPreview() {
                 attachmentPreview.innerHTML = '';
@@ -462,19 +452,19 @@
                             const reader = new FileReader();
                             reader.onload = (e) => {
                                 card.innerHTML = `
-                                    <img src="${e.target.result}" alt="${file.name}">
-                                    <div class="attachment-actions">
-                                        <button type="button" class="btn btn-warning btn-sm replace-file" data-index="${index}" data-bs-toggle="tooltip" title="Replace file">
-                                            <i class="bi bi-arrow-repeat"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-danger btn-sm remove-file" data-index="${index}" data-bs-toggle="tooltip" title="Remove file">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-                                    <div class="card-body text-center">
-                                        <span class="file-name text-muted">${file.name}</span>
-                                    </div>
-                                `;
+                                <img src="${e.target.result}" alt="${file.name}">
+                                <div class="attachment-actions">
+                                    <button type="button" class="btn btn-warning btn-sm replace-file" data-index="${index}" data-bs-toggle="tooltip" title="Replace file">
+                                        <i class="bi bi-arrow-repeat"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm remove-file" data-index="${index}" data-bs-toggle="tooltip" title="Remove file">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                                <div class="card-body text-center">
+                                    <span class="file-name text-muted">${file.name}</span>
+                                </div>
+                            `;
                                 col.appendChild(card);
                                 attachmentPreview.appendChild(col);
                                 initializeActionButtons();
@@ -482,19 +472,19 @@
                             reader.readAsDataURL(file);
                         } else {
                             card.innerHTML = `
-                                <div class="card-body text-center">
-                                    <i class="bi bi-file-earmark-text file-icon"></i>
-                                    <div class="attachment-actions">
-                                        <button type="button" class="btn btn-warning btn-sm replace-file" data-index="${index}" data-bs-toggle="tooltip" title="Replace file">
-                                            <i class="bi bi-arrow-repeat"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-danger btn-sm remove-file" data-index="${index}" data-bs-toggle="tooltip" title="Remove file">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </div>
-                                    <span class="file-name text-muted">${file.name}</span>
+                            <div class="card-body text-center">
+                                <i class="bi bi-file-earmark-text file-icon"></i>
+                                <div class="attachment-actions">
+                                    <button type="button" class="btn btn-warning btn-sm replace-file" data-index="${index}" data-bs-toggle="tooltip" title="Replace file">
+                                        <i class="bi bi-arrow-repeat"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm remove-file" data-index="${index}" data-bs-toggle="tooltip" title="Remove file">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </div>
-                            `;
+                                <span class="file-name text-muted">${file.name}</span>
+                            </div>
+                        `;
                             col.appendChild(card);
                             attachmentPreview.appendChild(col);
                             initializeActionButtons();
@@ -504,8 +494,8 @@
                     attachmentPreview.style.display = 'none';
                 }
             }
+
             function initializeActionButtons() {
-                // Replace file
                 document.querySelectorAll('.replace-file').forEach(button => {
                     button.addEventListener('click', (e) => {
                         const index = e.currentTarget.dataset.index;
@@ -513,7 +503,6 @@
                         replaceInput.click();
                     });
                 });
-                // Remove file
                 document.querySelectorAll('.remove-file').forEach(button => {
                     button.addEventListener('click', () => {
                         const index = parseInt(button.dataset.index);
@@ -521,17 +510,18 @@
                         updateAttachmentPreview();
                     });
                 });
-                // Re-initialize tooltips for new buttons
                 const newTooltips = document.querySelectorAll('.attachment-actions [data-bs-toggle="tooltip"]');
                 newTooltips.forEach(tooltip => new bootstrap.Tooltip(tooltip));
             }
+
             chooseFileBtn.addEventListener('click', () => attachmentInput.click());
             attachmentInput.addEventListener('change', () => {
                 const newFiles = Array.from(attachmentInput.files);
                 selectedFiles = [...selectedFiles, ...newFiles];
                 updateAttachmentPreview();
-                attachmentInput.value = ''; // Clear input for next selection
+                attachmentInput.value = '';
             });
+
             replaceInput.addEventListener('change', () => {
                 const index = parseInt(replaceInput.dataset.index);
                 const newFile = replaceInput.files[0];
@@ -542,20 +532,57 @@
                 replaceInput.value = '';
                 delete replaceInput.dataset.index;
             });
-            // Update form data before submission
+
+            // User table update
+            function updateUserTable(users) {
+                userTableBody.innerHTML = '';
+                if (users.length > 0) {
+                    users.forEach((user, index) => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${user.name || 'N/A'}</td>
+                        <td>${user.email || 'N/A'}</td>
+                        <td>${user.office?.title || 'N/A'}</td>
+                        <td>${user.department?.name || 'N/A'}</td>
+                        <td><input type="checkbox" name="selected_users[]" value="${user.id}"></td>
+                    `;
+                        userTableBody.appendChild(row);
+                    });
+                    userTable.style.display = 'table';
+                    noUsersMessage.style.display = 'none';
+                } else {
+                    userTable.style.display = 'none';
+                    noUsersMessage.style.display = 'block';
+                }
+            }
+
+            // Initial user table load
+            updateUserTable(allUsers);
+
+            // Form submission
             updateForm.addEventListener('submit', function (e) {
                 e.preventDefault();
+                const remarkInput = document.getElementById('remark');
+                const quill = new Quill('#quill-editor'); // Reinitialize Quill for reliability
+                remarkInput.value = quill.getText().trim();
+                console.log('Remark before submit:', remarkInput.value);
                 const formData = new FormData(this);
-                // Clear previous attachment[] entries
                 selectedFiles.forEach(file => {
                     formData.append('attachment[]', file);
                 });
+                for (let pair of formData.entries()) {
+                    console.log(`${pair[0]}: ${pair[1]}`);
+                }
                 $.ajax({
                     url: this.action,
                     method: this.method,
                     data: formData,
                     processData: false,
                     contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
                     success: function (response) {
                         Swal.fire({
                             icon: 'success',
@@ -576,32 +603,6 @@
                     }
                 });
             });
-            // User table update
-            function updateUserTable(users) {
-                userTableBody.innerHTML = '';
-                if (users.length > 0) {
-                    users.forEach((user, index) => {
-                        console.log(user);
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${index + 1}</td>
-                            <td>${user.name || 'N/A'}</td>
-                            <td>${user.email ||'N/A'}</td>
-                            <td>${user.office?.title || 'N/A'}</td>
-                            <td>${user.department?.name || 'N/A'}</td>
-                            <td><input type="checkbox" name="selected_users[]" value="${user.id}"></td>
-                        `;
-                        userTableBody.appendChild(row);
-                    });
-                    userTable.style.display = 'table';
-                    noUsersMessage.style.display = 'none';
-                } else {
-                    userTable.style.display = 'none';
-                    noUsersMessage.style.display = 'block';
-                }
-            }
-            // Initial user table load
-            updateUserTable(allUsers);
         });
     </script>
 @endsection

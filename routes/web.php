@@ -52,7 +52,8 @@ Route::middleware('auth')->prefix('backend')->group(function() {
     Route::get('/dispatches/returned', [DispatchController::class, 'returned'])->name('dispatches.returned');
     Route::get('/dispatches/recommended', [DispatchController::class, 'recommended'])->name('dispatches.recommended');
     Route::get('/dispatches/all', [DispatchController::class, 'allTasks'])->name('dispatches.all');
-    Route::post('/dispatches/update-status/{id}', [DispatchController::class, 'updateStatus'])->name('dispatch.updateStatus');
+//    Route::post('/dispatches/update-status/{id}', [DispatchController::class, 'updateStatus'])->name('dispatch.updateStatus');
+    Route::post('dispatch/{id}/update-status', [DispatchController::class, 'updateStatus'])->name('dispatch.updateStatus');
 
 
 });

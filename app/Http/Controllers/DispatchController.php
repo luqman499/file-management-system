@@ -147,48 +147,7 @@ class DispatchController extends Controller
 
         return view('backend.website.dispatch.edit', compact('model', 'flags', 'offices', 'departments', 'folders', 'users'));
     }
-//    public function update(DispatchUpdateRequest $request, $id)
-//    {
-//        try {
-//            $model = Dispatch::find($id);
-//             $model->flag_id = $request->flag_id;
-//            $model->folder_id = $request->folder_id;
-//            $model->office_id = $request->office_id;
-//            $model->title = $request->title;
-//            $model->dispatch_number = $request->dispatch_number;
-//            $model->file_number = $request->file_number;
-//            $model->description = $request->description;
-//            $model->date = $request->date;
-//            $model->time = $request->time;
-//            $model->send_to = $request->send_to;
-//            $model->received_from = $request->received_from;
-//            $model->save();
-//
-//            if ($request->hasFile('attachments')) {
-//                foreach ($request->file('attachments') as $attachment) {
-//                    $fileName = 'dispatch_document_' . uniqid() . '.' . $attachment->getClientOriginalExtension();
-//                    $filePath = $attachment->move('public/documents/', $fileName);
-//
-//                    DispatchDocument::create([
-//                        'dispatch_id' => $model->id,
-//                        'file' => $filePath
-//                    ]);
-//                }
-//            }
-//
-//            if ($request->filled('selected_users')) {
-//                $model->users()->sync($request->selected_users);
-//            } else {
-//                $model->users()->sync([]);
-//            }
-//
-//            flash()->success('Dispatch updated successfully!');
-//            return redirect()->route('dispatch.index');
-//        } catch (\Exception $e) {
-//            flash()->error('Something went wrong: ' . $e->getMessage());
-//            return back()->withInput();
-//        }
-//    }
+
     public function update(DispatchUpdateRequest $request, $id)
     {
         try {
@@ -252,16 +211,64 @@ class DispatchController extends Controller
         }
     }
 
-   public function updateStatus(Request $request, $id)
- {
-        $dispatchDetail = DispatchDetail::find($id);
-        $dispatchDetail->status = $request->status;
-        $dispatchDetail->remark = $request->remark;
-        $dispatchDetail->save();
+    public function updateStatus(Request $request, $id)
+    {
+        DB::beginTransaction();
+        try {
+            // Find the dispatch
+            $dispatch = Dispatch::findOrFail($id);
 
-        return redirect()->back()->with('success', 'Status updated successfully.');
+            // Create a new DispatchDetail for the current user
+            $dispatchDetail = DispatchDetail::create([
+                'dispatch_id' => $dispatch->id,
+                'user_id' => auth()->id(),
+                'remark' => $request->remark ?? null,
+                'status' => $request->status,
+            ]);
 
- }
+            // Handle attachments
+            if ($request->hasFile('attachment')) {
+                foreach ($request->file('attachment') as $attachment) {
+                    $fileName = 'dispatch_document_' . uniqid() . '.' . $attachment->getClientOriginalExtension();
+                    $filePath = $attachment->move('documents', $fileName);
+                    DispatchDocument::create([
+                        'dispatch_id' => $dispatch->id,
+                        'title' => $attachment->getClientOriginalName(),
+                        'file' => $filePath,
+                        'status' => 0,
+                    ]);
+                }
+            }
+
+            // Handle selected users
+            if ($request->filled('selected_users')) {
+                foreach ($request->selected_users as $user_id) {
+                    DispatchDetail::create([
+                        'dispatch_id' => $dispatch->id,
+                        'user_id' => $user_id,
+                        'status' => 0, // Default status for assigned users
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Dispatch updated successfully']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['errors' => ['general' => 'Failed to update dispatch: ' . $e->getMessage()]], 500);
+        }
+    }
+
+//   public function updateStatus(Request $request, $id)
+// {
+//        $dispatchDetail = DispatchDetail::find($id);
+//        $dispatchDetail->status = $request->status;
+//        $dispatchDetail->remark = $request->remark;
+//        $dispatchDetail->save();
+//
+//        return redirect()->back()->with('success', 'Status updated successfully.');
+//
+// }
 
     //Assigned to me tasks
     public function assigned(){
