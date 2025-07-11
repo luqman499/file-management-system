@@ -13,7 +13,7 @@ class DispatchDetail extends Model
         'dispatch_id',
         'user_id',
         'status',
-        'remarks',
+        'remark',
     ];
 
     public function dispatch()

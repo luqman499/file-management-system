@@ -259,16 +259,7 @@ class DispatchController extends Controller
         }
     }
 
-//   public function updateStatus(Request $request, $id)
-// {
-//        $dispatchDetail = DispatchDetail::find($id);
-//        $dispatchDetail->status = $request->status;
-//        $dispatchDetail->remark = $request->remark;
-//        $dispatchDetail->save();
-//
-//        return redirect()->back()->with('success', 'Status updated successfully.');
-//
-// }
+
 
     //Assigned to me tasks
     public function assigned(){
