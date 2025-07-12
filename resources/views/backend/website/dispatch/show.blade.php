@@ -40,7 +40,7 @@
                                     <div class="col-md-6">
                                         <div class="detail-item d-flex align-items-center mb-2">
                                             <span class="fw-medium text-muted me-3" style="min-width: 120px;">Submitted By:</span>
-                                            <span>{{ $dispatch->users->name ?? 'N/A' }}</span>
+                                            <span>{{ optional($dispatch->user)->name ?? 'N/A' }}</span>
                                         </div>
                                         <div class="detail-item d-flex align-items-center mb-2">
                                             <span class="fw-medium text-muted me-3" style="min-width: 120px;">Office:</span>
@@ -88,7 +88,7 @@
                                                     <td>{{ $loop->iteration }}</td>
                                                     <td>{{ $attachment->title ?? 'Untitled Document' }}</td>
                                                     <td>
-                                                        @if(in_array(strtolower(pathinfo($attachment->file, PATHINFO_EXTENSION)), ['png', 'jpg', 'jpeg']))
+                                                      disp  @if(in_array(strtolower(pathinfo($attachment->file, PATHINFO_EXTENSION)), ['png', 'jpg', 'jpeg']))
                                                             <img src="{{ asset($attachment->file) }}"
                                                                  alt="{{ $attachment->title ?? 'Attachment' }}"
                                                                  class="rounded"
@@ -119,8 +119,10 @@
                                 @else
                                     <p class="text-muted">No attachments available.</p>
                                 @endif
+
                             </div>
                             <!-- Dispatch Details Data -->
+
                             <div class="mb-5">
                                 <h6 class="fw-semibold text-dark mb-3 border-bottom pb-2">Dispatch Details</h6>
                                 @if($dispatch->dispatchDetails->isNotEmpty())
@@ -133,6 +135,7 @@
                                                 <th scope="col" class="fw-semibold text-muted">Status</th>
                                                 <th scope="col" class="fw-semibold text-muted">Associated User</th>
                                                 <th scope="col" class="fw-semibold text-muted">Created At</th>
+                                                <th scope="col" class="fw-semibold text-muted">Attachments</th>
                                             </tr>
                                             </thead>
                                             <tbody>
@@ -157,6 +160,49 @@
                                                     </td>
                                                     <td>{{ optional($detail->user)->name ?? 'N/A' }}</td>
                                                     <td>{{ $detail->created_at->format('d M Y, H:i') }}</td>
+                                                    <td>
+
+                                                        @foreach($dispatch->dispatchDetails as $detail)
+                                                            @foreach($detail->dispatchDetailDocument as $document)
+                                                                @if($document->file && Storage::exists('public/'.$document->file))
+                                                                    <a href="{{ Storage::url($document->file) }}" target="_blank">
+                                                                        @if(in_array(strtolower(pathinfo($document->file, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif']))
+                                                                            <img src="{{ Storage::url($document->file) }}"
+                                                                                 alt="{{ $document->title }}"
+                                                                                 style="max-width: 100px;"
+                                                                                 class="img-thumbnail">
+                                                                        @else
+                                                                            <i class="fas fa-file"></i> {{ $document->title }}
+                                                                        @endif
+                                                                    </a>
+                                                                @else
+                                                                    <span class="text-muted">File not found</span>
+                                                                @endif
+                                                            @endforeach
+                                                        @endforeach
+{{--                                                        @if($detail->dispatchDetailDocument->isNotEmpty())--}}
+{{--                                                            <ul class="list-unstyled mb-0">--}}
+{{--                                                                @foreach($detail->dispatchDetailDocument as $doc)--}}
+{{--                                                                    <li class="d-flex align-items-center mb-2">--}}
+{{--                                                                        @if(in_array(strtolower(pathinfo($doc->file, PATHINFO_EXTENSION)), ['png', 'jpg', 'jpeg']))--}}
+{{--                                                                            <img src="{{ asset('storage/' . ltrim($doc->file, '/')) }}"--}}
+{{--                                                                                 alt="{{ $doc->title ?? 'Attachment' }}"--}}
+{{--                                                                                 class="rounded me-2"--}}
+{{--                                                                                 style="max-width: 50px; height: auto;"--}}
+{{--                                                                                 onerror="this.style.display='none'; console.log('Image failed to load: {{ asset('storage/' . ltrim($doc->file, '/')) }}');">--}}
+{{--                                                                        @else--}}
+{{--                                                                            <i class="bi bi-file-earmark-text me-2 fs-4"></i>--}}
+{{--                                                                        @endif--}}
+{{--                                                                        <a href="{{ asset('storage/' . ltrim($doc->file, '/')) }}"--}}
+{{--                                                                           target="_blank"--}}
+{{--                                                                           class="text-primary">{{ $doc->title ?? 'Untitled' }}</a>--}}
+{{--                                                                    </li>--}}
+{{--                                                                @endforeach--}}
+{{--                                                            </ul>--}}
+{{--                                                        @else--}}
+{{--                                                            <span class="text-muted">No attachments</span>--}}
+{{--                                                        @endif--}}
+                                                    </td>
                                                 </tr>
                                             @endforeach
                                             </tbody>
@@ -166,7 +212,7 @@
                                     <p class="text-muted">No dispatch details available.</p>
                                 @endif
                             </div>
-                            <!-- Update Dispatch Form -->
+
                             <div class="col-12 mb-5">
                                 {!! html()->form('POST', route('dispatch.updateStatus', $dispatch->id))->attribute('enctype', 'multipart/form-data')->id('update-form')->open() !!}
                                 @csrf
@@ -201,12 +247,12 @@
                                     <!-- Status Select -->
                                     <div class="col-4">
                                         <label for="status" class="form-label fw-medium text-dark">Status</label>
-                                        <select class="form-select" name="status" id="status">
-                                            <option value="">-- Select Status --</option>
-                                            <option value="1">Approved</option>
-                                            <option value="2">Rejected</option>
-                                            <option value="3">Returned</option>
-                                            <option value="4">Recommended</option>
+                                        <select class="form-select" name="status" id="status" required>
+                                            <option value="">-- Select Action --</option>
+                                            <option value="1">Approve (Complete Task)</option>
+                                            <option value="2">Reject (Close Item)</option>
+                                            <option value="3">Return (Needs Revision)</option>
+                                            <option value="4">Recommend (Forward to Others)</option>
                                         </select>
                                         @error('status')
                                         <span class="text-danger small">{{ $message }}</span>
@@ -243,10 +289,13 @@
                                 {!! html()->form()->close() !!}
                             </div>
                         </div>
+                        </div>
                     </div>
                 </div>
         </section>
     </div>
+
+
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <!-- Bootstrap 5 CSS -->
@@ -433,6 +482,49 @@
             } catch (error) {
                 console.error('Quill initialization error:', error);
             }
+
+            // Add this after the quill initialization
+            document.querySelector('#status').addEventListener('change', function() {
+                const status = parseInt(this.value);
+                const userSelectionDiv = document.querySelector('.user-selection-section');
+
+                if (status === 4) { // Recommended - show user selection
+                    userSelectionDiv.style.display = 'block';
+                } else {
+                    userSelectionDiv.style.display = 'none';
+                }
+            });
+
+// Update the form submission to validate required fields
+            updateForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const status = parseInt(document.querySelector('#status').value);
+                const remarkInput = document.getElementById('remark');
+                const quill = new Quill('#quill-editor');
+                remarkInput.value = quill.getText().trim();
+
+                // Validate required fields based on status
+                if (status === 4 && !document.querySelector('input[name="selected_users[]"]:checked')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Please select at least one user to recommend this to',
+                    });
+                    return;
+                }
+
+                if (!status) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Please select a status',
+                    });
+                    return;
+                }
+
+                // Continue with form submission...
+            });
 
             // Initialize Bootstrap Tooltips
             const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');

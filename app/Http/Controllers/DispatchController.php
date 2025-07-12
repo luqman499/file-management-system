@@ -5,6 +5,7 @@ use App\Http\Requests\DispatchUpdateRequest;
 use App\Models\Department;
 use App\Models\Dispatch;
 use App\Models\DispatchDetail;
+use App\Models\DispatchDetailDocument;
 use App\Models\DispatchDocument;
 use App\Models\Flag;
 use App\Models\Folder;
@@ -12,12 +13,13 @@ use App\Models\Office;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 class DispatchController extends Controller
 {
     public function index()
     {
-        $models = Dispatch::with('users', 'office', 'flag', 'folder',)
+        $models = Dispatch::with('user', 'office', 'flag', 'folder',)
         ->where('status', 0)
         ->get();
         return view('backend.website.dispatch.index', compact('models'));
@@ -102,26 +104,32 @@ class DispatchController extends Controller
     {
         try {
             $dispatch = Dispatch::with([
+                'user', // Add this to show who created the dispatch
                 'dispatchDocuments',
-                'dispatchDetails',
+                'dispatchDetails' => function($query) {
+                    $query->latest(); // Show latest details first
+                },
+                'dispatchDetails.user',
                 'dispatchDetails.dispatchDetailDocument',
                 'office',
                 'folder',
                 'flag',
+            ])->findOrFail($id); // Use findOrFail instead of find
 
-            ])->find($id);
-            $offices = Office::pluck('title', 'id');
-            $users = User::with(['office:id,title', 'department:id,name'])
-                ->get();
-            return view('backend.website.dispatch.show', compact('dispatch', 'offices', 'users'));
+            return view('backend.website.dispatch.show', [
+                'dispatch' => $dispatch,
+                'offices' => Office::pluck('title', 'id'),
+                'users' => User::with(['office:id,title', 'department:id,name'])->get()
+            ]);
+
         } catch (\Exception $e) {
-            session()->flash('error', 'Dispatch not found: ' . $e->getMessage());
-            return redirect()->route('dispatch.index');
+            Log::error('Dispatch show error: '.$e->getMessage());
+            return redirect()->route('dispatch.index')->with('error', 'Dispatch not found');
         }
-        //  $users = User::pluck('name', 'id');
-        //  $details = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments' ,'dispatchDetailDocument')->find($id);
-        //  return view('backend.website.dispatch.show', compact('details', 'users'));
     }
+
+
+
     public function edit($id)
     {
         $model = Dispatch::find($id);
@@ -215,51 +223,91 @@ class DispatchController extends Controller
     {
         DB::beginTransaction();
         try {
-            // Find the dispatch
             $dispatch = Dispatch::findOrFail($id);
+            $status = $request->status;
+            $selectedUsers = $request->selected_users ?? [];
 
-            // Create a new DispatchDetail for the current user
+            // Create dispatch detail for current user action
             $dispatchDetail = DispatchDetail::create([
                 'dispatch_id' => $dispatch->id,
                 'user_id' => auth()->id(),
                 'remark' => $request->remark ?? null,
-                'status' => $request->status,
+                'status' => $status,
             ]);
 
             // Handle attachments
             if ($request->hasFile('attachment')) {
                 foreach ($request->file('attachment') as $attachment) {
-                    $fileName = 'dispatch_document_' . uniqid() . '.' . $attachment->getClientOriginalExtension();
-                    $filePath = $attachment->move('documents', $fileName);
-                    DispatchDocument::create([
-                        'dispatch_id' => $dispatch->id,
+                    $fileName = 'dispatch_detail_document_' . uniqid() . '.' . $attachment->getClientOriginalExtension();
+                    $filePath = $attachment->storeAs('documents', $fileName, 'public');
+
+                    DispatchDetailDocument::create([
+                        'dispatch_detail_id' => $dispatchDetail->id,
                         'title' => $attachment->getClientOriginalName(),
                         'file' => $filePath,
-                        'status' => 0,
                     ]);
                 }
             }
 
-            // Handle selected users
-            if ($request->filled('selected_users')) {
-                foreach ($request->selected_users as $user_id) {
-                    DispatchDetail::create([
-                        'dispatch_id' => $dispatch->id,
-                        'user_id' => $user_id,
-                        'status' => 0, // Default status for assigned users
-                    ]);
-                }
+            // Handle status-specific actions
+            switch ($status) {
+                case 4: // Recommended - create new tasks for selected users
+                    foreach ($selectedUsers as $user_id) {
+                        if (User::where('id', $user_id)->exists()) {
+                            DispatchDetail::create([
+                                'dispatch_id' => $dispatch->id,
+                                'user_id' => $user_id,
+                                'status' => 0, // Pending status for new assignments
+                            ]);
+                        }
+                    }
+                    break;
+
+                case 3: // Returned - will be shown in admin inbox automatically
+                    // No additional action needed
+                    break;
+
+                case 1: // Approved
+                case 2: // Rejected
+                    // No additional action needed
+                    break;
             }
 
             DB::commit();
             return response()->json(['message' => 'Dispatch updated successfully']);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['errors' => ['general' => 'Failed to update dispatch: ' . $e->getMessage()]], 500);
+            Log::error('Failed to update dispatch:', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+            return response()->json(['error' => 'Failed to update dispatch: ' . $e->getMessage()], 500);
         }
     }
 
 
+    public function adminInbox()
+    {
+        $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')
+            ->ofNeedsAdminAttention()
+            ->get();
+
+        return view('backend.website.inbox.admin.index', compact('models'));
+    }
+
+
+    public static function getSidebarCounts()
+    {
+        return [
+            'all' => DispatchDetail::count(),
+            'returned' => DispatchDetail::ofReturned()->count(),
+            'rejected' => DispatchDetail::ofRejected()->count(),
+            'recommended' => DispatchDetail::ofRecommended()->count(),
+            'approved' => DispatchDetail::ofApproved()->count(),
+            'assigned_to_me' => DispatchDetail::ofAssignedToMe()->count(),
+        ];
+    }
 
     //Assigned to me tasks
     public function assigned(){

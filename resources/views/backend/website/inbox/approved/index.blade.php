@@ -45,16 +45,15 @@
                                         @forelse($models as $model)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $model->dispatch->title ?? 'N/A' }}</td>
-                                                <td>{{ $model->dispatch->office->title ?? 'N/A' }}</td>
-                                                <td>{{ $model->dispatch->data ?? 'N/A' }}</td>
-                                                <td>{{ $model->dispatch->time ?? 'N/A' }}</td>
-                                                <td>{{ $model->dispatch->dispatch_number ?? 'N/A' }}</td>
-                                                <td>{{ $model->dispatch->folder->title ?? 'N/A' }}</td>
+                                                <td>{{ optional($model->dispatch)->title ?? 'N/A' }}</td>
+                                                <td>{{ optional($model->dispatch)->office->title ?? 'N/A' }}</td>
+                                                <td>{{ optional($model->dispatch)->data ?? 'N/A' }}</td>
+                                                <td>{{ optional($model->dispatch)->time ?? 'N/A' }}</td>
+                                                <td>{{ optional($model->dispatch)->dispatch_number ?? 'N/A' }}</td>
+                                                <td>{{ optional($model->dispatch)->folder->title ?? 'N/A' }}</td>
                                                 <td class="text-center">
                                                     <div class="d-flex justify-content-center gap-3">
                                                         <a href="{{ route('dispatch.show', $model->id) }}">View</a>
-                                                        </a>
                                                     </div>
                                                 </td>
                                             </tr>

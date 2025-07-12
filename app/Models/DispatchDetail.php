@@ -7,7 +7,7 @@ use App\Models\Dispatch;
 use App\Models\DispatchDetailDocument;
 use Illuminate\Database\Eloquent\Model;
 
-class DispatchDetail extends Model
+class  DispatchDetail extends Model
 {
     protected $fillable = [
         'dispatch_id',
@@ -60,6 +60,11 @@ class DispatchDetail extends Model
  {
      return $query->where('status', 4);
  }
+
+    public function scopeOfNeedsAdminAttention($query)
+    {
+        return $query->where('status', 3); // Returned items
+    }
 
 }
 
