@@ -33,10 +33,9 @@ class  DispatchDetail extends Model
 
 
 
-     public function scopeOfAssignedToMe($query)
+    public function scopeOfAssignedToMe($query)
     {
-         return $query->where('user_id', auth()->user()->id);
-//         return $query->where('user_id', auth()->user()->id)->where('status',  0);
+        return $query->where('user_id', auth()->id())->where('status', 0);
     }
 
 

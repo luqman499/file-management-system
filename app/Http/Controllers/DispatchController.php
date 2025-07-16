@@ -263,8 +263,20 @@ class DispatchController extends Controller
                     }
                     break;
 
-                case 3: // Returned - will be shown in admin inbox automatically
-                    // No additional action needed
+                case 3: // Returned - assign to the previous user
+                    $previousDetail = DispatchDetail::where('dispatch_id', $dispatch->id)
+                        ->where('id', '!=', $dispatchDetail->id)
+                        ->orderBy('created_at', 'desc')
+                        ->first();
+
+                    if ($previousDetail && $previousDetail->user_id) {
+                        DispatchDetail::create([
+                            'dispatch_id' => $dispatch->id,
+                            'user_id' => $previousDetail->user_id,
+                            'status' => 0, // Pending status for the previous user
+                            'remark' => 'Returned for revision',
+                        ]);
+                    }
                     break;
 
                 case 1: // Approved
@@ -300,18 +312,21 @@ class DispatchController extends Controller
     public static function getSidebarCounts()
     {
         return [
-            'all' => DispatchDetail::count(),
-            'returned' => DispatchDetail::ofReturned()->count(),
-            'rejected' => DispatchDetail::ofRejected()->count(),
-            'recommended' => DispatchDetail::ofRecommended()->count(),
-            'approved' => DispatchDetail::ofApproved()->count(),
+            'all' => DispatchDetail::where('user_id', auth()->id())->count(),
+            'returned' => DispatchDetail::ofReturned()->where('user_id', auth()->id())->count(),
+            'rejected' => DispatchDetail::ofRejected()->where('user_id', auth()->id())->count(),
+            'recommended' => DispatchDetail::ofRecommended()->where('user_id', auth()->id())->count(),
+            'approved' => DispatchDetail::ofApproved()->where('user_id', auth()->id())->count(),
             'assigned_to_me' => DispatchDetail::ofAssignedToMe()->count(),
         ];
     }
 
     //Assigned to me tasks
-    public function assigned(){
-        $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')->ofAssignedToMe()->get();
+    public function assigned()
+    {
+        $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')
+            ->ofAssignedToMe() // Already filters by user_id and status = 0 (Pending)
+            ->get();
         return view('backend.website.inbox.assigned.index', compact('models'));
     }
     public function approved(){
@@ -326,10 +341,14 @@ class DispatchController extends Controller
     $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')->ofReturned()->ofAssignedToMe()->get();
     return view('backend.website.inbox.returned.index', compact('models'));
  }
-  public function recommended(){
-    $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')->ofRecommended()->ofAssignedToMe()->get();
-    return view('backend.website.inbox.recommended.index', compact('models'));
-}
+    public function recommended()
+    {
+        $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')
+            ->ofRecommended()
+            ->where('user_id', auth()->id()) // Ensure only the authenticated user's recommended tasks
+            ->get();
+        return view('backend.website.inbox.recommended.index', compact('models'));
+    }
  public function allTasks()
     {
         $models = DispatchDetail::with('dispatch', 'dispatch.dispatchDocuments')->get();

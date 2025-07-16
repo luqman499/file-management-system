@@ -121,10 +121,11 @@
                                 @endif
 
                             </div>
-                            <!-- Dispatch Details Data -->
 
+
+                            <!-- Dispatch Details Data -->
                             <div class="mb-5">
-                                <h6 class="fw-semibold text-dark mb-3 border-bottom pb-2">Dispatch Details</h6>
+                                <h6 class="fw-semibold text-dark mb-3 border-bottom pb-2">Dispatch History</h6>
                                 @if($dispatch->dispatchDetails->isNotEmpty())
                                     <div class="table-responsive rounded-2 border">
                                         <table class="table table-hover mb-0">
@@ -139,10 +140,10 @@
                                             </tr>
                                             </thead>
                                             <tbody>
-                                            @foreach($dispatch->dispatchDetails as $index => $detail)
+                                            @foreach($dispatch->dispatchDetails->sortBy('created_at') as $index => $detail)
                                                 <tr class="transition-all">
                                                     <td>{{ $index + 1 }}</td>
-                                                    <td>{{ $detail->remark ?? 'N/A' }}</td>
+                                                    <td>{!! nl2br(e($detail->remark ?? 'N/A')) !!}</td>
                                                     <td>
                                                         @if($detail->status == 0)
                                                             <span class="badge bg-secondary">Pending</span>
@@ -161,47 +162,32 @@
                                                     <td>{{ optional($detail->user)->name ?? 'N/A' }}</td>
                                                     <td>{{ $detail->created_at->format('d M Y, H:i') }}</td>
                                                     <td>
-
-                                                        @foreach($dispatch->dispatchDetails as $detail)
-                                                            @foreach($detail->dispatchDetailDocument as $document)
-                                                                @if($document->file && Storage::exists('public/'.$document->file))
-                                                                    <a href="{{ Storage::url($document->file) }}" target="_blank">
-                                                                        @if(in_array(strtolower(pathinfo($document->file, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif']))
-                                                                            <img src="{{ Storage::url($document->file) }}"
-                                                                                 alt="{{ $document->title }}"
-                                                                                 style="max-width: 100px;"
-                                                                                 class="img-thumbnail">
+                                                        @if($detail->dispatchDetailDocument->isNotEmpty())
+                                                            <ul class="list-unstyled mb-0">
+                                                                @foreach($detail->dispatchDetailDocument as $document)
+                                                                    <li class="d-flex align-items-center mb-2">
+                                                                        @if($document->file && Storage::exists('public/' . $document->file))
+                                                                            @if(in_array(strtolower(pathinfo($document->file, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif']))
+                                                                                <img src="{{ Storage::url($document->file) }}"
+                                                                                     alt="{{ $document->title ?? 'Attachment' }}"
+                                                                                     class="rounded me-2"
+                                                                                     style="max-width: 50px; height: auto;"
+                                                                                     onerror="this.style.display='none';">
+                                                                            @else
+                                                                                <i class="bi bi-file-earmark-text me-2 fs-4"></i>
+                                                                            @endif
+                                                                            <a href="{{ Storage::url($document->file) }}"
+                                                                               target="_blank"
+                                                                               class="text-primary">{{ $document->title ?? 'Untitled' }}</a>
                                                                         @else
-                                                                            <i class="fas fa-file"></i> {{ $document->title }}
+                                                                            <span class="text-muted">File not found</span>
                                                                         @endif
-                                                                    </a>
-                                                                @else
-                                                                    <span class="text-muted">File not found</span>
-                                                                @endif
-                                                            @endforeach
-                                                        @endforeach
-{{--                                                        @if($detail->dispatchDetailDocument->isNotEmpty())--}}
-{{--                                                            <ul class="list-unstyled mb-0">--}}
-{{--                                                                @foreach($detail->dispatchDetailDocument as $doc)--}}
-{{--                                                                    <li class="d-flex align-items-center mb-2">--}}
-{{--                                                                        @if(in_array(strtolower(pathinfo($doc->file, PATHINFO_EXTENSION)), ['png', 'jpg', 'jpeg']))--}}
-{{--                                                                            <img src="{{ asset('storage/' . ltrim($doc->file, '/')) }}"--}}
-{{--                                                                                 alt="{{ $doc->title ?? 'Attachment' }}"--}}
-{{--                                                                                 class="rounded me-2"--}}
-{{--                                                                                 style="max-width: 50px; height: auto;"--}}
-{{--                                                                                 onerror="this.style.display='none'; console.log('Image failed to load: {{ asset('storage/' . ltrim($doc->file, '/')) }}');">--}}
-{{--                                                                        @else--}}
-{{--                                                                            <i class="bi bi-file-earmark-text me-2 fs-4"></i>--}}
-{{--                                                                        @endif--}}
-{{--                                                                        <a href="{{ asset('storage/' . ltrim($doc->file, '/')) }}"--}}
-{{--                                                                           target="_blank"--}}
-{{--                                                                           class="text-primary">{{ $doc->title ?? 'Untitled' }}</a>--}}
-{{--                                                                    </li>--}}
-{{--                                                                @endforeach--}}
-{{--                                                            </ul>--}}
-{{--                                                        @else--}}
-{{--                                                            <span class="text-muted">No attachments</span>--}}
-{{--                                                        @endif--}}
+                                                                    </li>
+                                                                @endforeach
+                                                            </ul>
+                                                        @else
+                                                            <span class="text-muted">No attachments</span>
+                                                        @endif
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -209,7 +195,7 @@
                                         </table>
                                     </div>
                                 @else
-                                    <p class="text-muted">No dispatch details available.</p>
+                                    <p class="text-muted">No dispatch history available.</p>
                                 @endif
                             </div>
 
@@ -260,7 +246,7 @@
                                     </div>
                                 </div>
                                 <!-- Member List -->
-                                <div class="mb-4">
+                                <div class="mb-4 user-selection-section" style="display: none;">
                                     <h6 class="fw-semibold text-dark mb-3">Assign Members</h6>
                                     <div class="input-group mb-3" style="max-width: 300px;">
                                         <input type="text" id="user-search" class="form-control" placeholder="Search by name..." aria-label="Search users">
@@ -288,6 +274,8 @@
                                 </div>
                                 {!! html()->form()->close() !!}
                             </div>
+
+
                         </div>
                         </div>
                     </div>
@@ -462,6 +450,8 @@
             const userTable = document.getElementById('user-table');
             const userTableBody = document.getElementById('user-table-body');
             const noUsersMessage = document.getElementById('no-users-message');
+            const statusSelect = document.getElementById('status');
+            const userSelectionSection = document.querySelector('.user-selection-section');
             let currentFilteredUsers = allUsers;
             let selectedFiles = [];
 
@@ -476,44 +466,28 @@
                 });
                 const remarkInput = document.getElementById('remark');
                 quill.on('text-change', () => {
-                    remarkInput.value = quill.getText().trim();
+                    remarkInput.value = quill.root.innerHTML; // Store HTML content
                     console.log('Quill content:', remarkInput.value);
                 });
             } catch (error) {
                 console.error('Quill initialization error:', error);
             }
 
-            // Add this after the quill initialization
-            document.querySelector('#status').addEventListener('change', function() {
-                const status = parseInt(this.value);
-                const userSelectionDiv = document.querySelector('.user-selection-section');
-
-                if (status === 4) { // Recommended - show user selection
-                    userSelectionDiv.style.display = 'block';
-                } else {
-                    userSelectionDiv.style.display = 'none';
-                }
+            // Toggle user selection section based on status
+            statusSelect.addEventListener('change', function() {
+                userSelectionSection.style.display = this.value === '4' ? 'block' : 'none';
             });
 
-// Update the form submission to validate required fields
+            // Form submission validation
             updateForm.addEventListener('submit', function(e) {
                 e.preventDefault();
 
                 const status = parseInt(document.querySelector('#status').value);
                 const remarkInput = document.getElementById('remark');
                 const quill = new Quill('#quill-editor');
-                remarkInput.value = quill.getText().trim();
+                remarkInput.value = quill.root.innerHTML; // Store HTML content
 
-                // Validate required fields based on status
-                if (status === 4 && !document.querySelector('input[name="selected_users[]"]:checked')) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Please select at least one user to recommend this to',
-                    });
-                    return;
-                }
-
+                // Validate required fields
                 if (!status) {
                     Swal.fire({
                         icon: 'error',
@@ -523,12 +497,51 @@
                     return;
                 }
 
-                // Continue with form submission...
-            });
+                if (status === 4 && !document.querySelector('input[name="selected_users[]"]:checked')) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Please select at least one user to recommend this to',
+                    });
+                    return;
+                }
 
-            // Initialize Bootstrap Tooltips
-            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
-            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+                const formData = new FormData(this);
+                selectedFiles.forEach(file => {
+                    formData.append('attachment[]', file);
+                });
+                for (let pair of formData.entries()) {
+                    console.log(`${pair[0]}: ${pair[1]}`);
+                }
+                $.ajax({
+                    url: this.action,
+                    method: this.method,
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    success: function (response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.message || 'Dispatch updated successfully!',
+                        }).then(() => {
+                            window.location.href = "{{ route('dispatch.index') }}";
+                        });
+                    },
+                    error: function (xhr) {
+                        const errors = xhr.responseJSON?.errors || {};
+                        const errorMessage = Object.values(errors).flat().join('\n') || 'Failed to update dispatch.';
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: errorMessage,
+                        });
+                    }
+                });
+            });
 
             // Attachment handling
             function updateAttachmentPreview() {
@@ -652,49 +665,20 @@
             // Initial user table load
             updateUserTable(allUsers);
 
-            // Form submission
-            updateForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-                const remarkInput = document.getElementById('remark');
-                const quill = new Quill('#quill-editor'); // Reinitialize Quill for reliability
-                remarkInput.value = quill.getText().trim();
-                console.log('Remark before submit:', remarkInput.value);
-                const formData = new FormData(this);
-                selectedFiles.forEach(file => {
-                    formData.append('attachment[]', file);
-                });
-                for (let pair of formData.entries()) {
-                    console.log(`${pair[0]}: ${pair[1]}`);
-                }
-                $.ajax({
-                    url: this.action,
-                    method: this.method,
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    success: function (response) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: response.message || 'Dispatch updated successfully!',
-                        }).then(() => {
-                            window.location.href = "{{ route('dispatch.index') }}";
-                        });
-                    },
-                    error: function (xhr) {
-                        const errors = xhr.responseJSON?.errors || {};
-                        const errorMessage = Object.values(errors).flat().join('\n') || 'Failed to update dispatch.';
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: errorMessage,
-                        });
-                    }
-                });
+            // User search functionality
+            userSearch.addEventListener('input', function () {
+                const searchTerm = this.value.toLowerCase();
+                currentFilteredUsers = allUsers.filter(user =>
+                    user.name.toLowerCase().includes(searchTerm) ||
+                    user.email.toLowerCase().includes(searchTerm)
+                );
+                updateUserTable(currentFilteredUsers);
             });
+
+            // Initialize Bootstrap Tooltips
+            const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
         });
     </script>
+
 @endsection
