@@ -1,9 +1,8 @@
-
 @extends('backend.layout.auth')
 @section('backend')
 
     <div class="content-wrapper">
-        <section class="section container-fluid py-4">
+        <section class="section container-fluid py-5 ms-4 me-4">
             <div class="row">
                 <div class="col-lg-12">
                     <div class="card border-0 shadow-sm rounded-3">
@@ -62,7 +61,7 @@
                                 <h6 class="fw-semibold text-dark mb-3 border-bottom pb-2">Remarks/Description</h6>
                                 <div class="p-3 bg-light rounded-2 border">
                                     @if($dispatch->description)
-                                        <p class="mb-0 text-dark">{!! nl2br(e($dispatch->description)) !!}</p>
+                                        <p class="mb-0 text-dark">{{ nl2br(strip_tags($dispatch->description)) }}</p>
                                     @else
                                         <p class="text-muted mb-0">No description available.</p>
                                     @endif
@@ -88,11 +87,13 @@
                                                     <td>{{ $loop->iteration }}</td>
                                                     <td>{{ $attachment->title ?? 'Untitled Document' }}</td>
                                                     <td>
-                                                      disp  @if(in_array(strtolower(pathinfo($attachment->file, PATHINFO_EXTENSION)), ['png', 'jpg', 'jpeg']))
+                                                        @if(in_array(strtolower(pathinfo($attachment->file, PATHINFO_EXTENSION)), ['png', 'jpg', 'jpeg']))
                                                             <img src="{{ asset($attachment->file) }}"
                                                                  alt="{{ $attachment->title ?? 'Attachment' }}"
                                                                  class="rounded"
-                                                                 style="max-width: 100px; height: auto;">
+                                                                 style="max-width: 100px; height: auto;"
+                                                                 onerror="this.style.display='none'; this.nextSibling.style.display='inline';">
+                                                            <span style="display: none;" class="text-muted">Image not found (Path: {{ $attachment->file }})</span>
                                                         @else
                                                             <i class="bi bi-file-earmark-text fs-3 text-primary"></i>
                                                             <br>
@@ -119,10 +120,7 @@
                                 @else
                                     <p class="text-muted">No attachments available.</p>
                                 @endif
-
                             </div>
-
-
                             <!-- Dispatch Details Data -->
                             <div class="mb-5">
                                 <h6 class="fw-semibold text-dark mb-3 border-bottom pb-2">Dispatch History</h6>
@@ -143,7 +141,7 @@
                                             @foreach($dispatch->dispatchDetails->sortBy('created_at') as $index => $detail)
                                                 <tr class="transition-all">
                                                     <td>{{ $index + 1 }}</td>
-                                                    <td>{!! nl2br(e($detail->remark ?? 'N/A')) !!}</td>
+                                                    <td>{!! $detail->remark ?? 'N/A' !!}</td>
                                                     <td>
                                                         @if($detail->status == 0)
                                                             <span class="badge bg-secondary">Pending</span>
@@ -166,21 +164,26 @@
                                                             <ul class="list-unstyled mb-0">
                                                                 @foreach($detail->dispatchDetailDocument as $document)
                                                                     <li class="d-flex align-items-center mb-2">
-                                                                        @if($document->file && Storage::exists('public/' . $document->file))
-                                                                            @if(in_array(strtolower(pathinfo($document->file, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif']))
-                                                                                <img src="{{ Storage::url($document->file) }}"
-                                                                                     alt="{{ $document->title ?? 'Attachment' }}"
-                                                                                     class="rounded me-2"
-                                                                                     style="max-width: 50px; height: auto;"
-                                                                                     onerror="this.style.display='none';">
+                                                                        @if($document->file)
+                                                                            @if(Storage::disk('public')->exists($document->file))
+                                                                                @if(in_array(strtolower(pathinfo($document->file, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif']))
+                                                                                    <img src="{{ Storage::url($document->file) }}"
+                                                                                         alt="{{ $document->title ?? 'Attachment' }}"
+                                                                                         class="rounded me-2"
+                                                                                         style="max-width: 50px; height: auto;"
+                                                                                         onerror="this.style.display='none'; this.nextSibling.style.display='inline';">
+                                                                                    <span style="display: none;" class="text-muted">Image failed to load</span>
+                                                                                @else
+                                                                                    <i class="bi bi-file-earmark-text me-2 fs-4"></i>
+                                                                                @endif
+                                                                                <a href="{{ Storage::url($document->file) }}"
+                                                                                   target="_blank"
+                                                                                   class="text-primary">{{ $document->title ?? 'Untitled' }}</a>
                                                                             @else
-                                                                                <i class="bi bi-file-earmark-text me-2 fs-4"></i>
+                                                                                <span class="text-muted">File not found (Path: {{ $document->file ?? 'N/A' }}, URL: {{ Storage::url($document->file) }})</span>
                                                                             @endif
-                                                                            <a href="{{ Storage::url($document->file) }}"
-                                                                               target="_blank"
-                                                                               class="text-primary">{{ $document->title ?? 'Untitled' }}</a>
                                                                         @else
-                                                                            <span class="text-muted">File not found</span>
+                                                                            <span class="text-muted">No file path provided</span>
                                                                         @endif
                                                                     </li>
                                                                 @endforeach
@@ -198,12 +201,12 @@
                                     <p class="text-muted">No dispatch history available.</p>
                                 @endif
                             </div>
-
-                            <div class="col-12 mb-5">
+                            <!-- Update Form -->
+                            <div class="mb-5">
                                 {!! html()->form('POST', route('dispatch.updateStatus', $dispatch->id))->attribute('enctype', 'multipart/form-data')->id('update-form')->open() !!}
                                 @csrf
                                 <!-- Para/Remark -->
-                                <div class="col-12 mb-4">
+                                <div class="mb-4">
                                     <label for="remark" class="form-label fw-medium text-dark">Para/Remarks</label>
                                     <div id="quill-editor" class="quill-editor border rounded-2"></div>
                                     <input type="hidden" name="remark" id="remark">
@@ -215,10 +218,10 @@
                                 <div class="row mb-4">
                                     <div class="col-8">
                                         <label for="attachment" class="form-label fw-medium text-dark">Attachments</label>
-                                        <div class="border rounded bg-light">
+                                        <div class="border rounded bg-light p-3">
                                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <span class="text-muted ms-2 mt-2">Select files (JPEG, PNG, PDF)</span>
-                                                <button type="button" class="btn btn-sm btn-primary mt-2 me-2" id="choose-file" data-bs-toggle="tooltip" title="Add new files">
+                                                <span class="text-muted ms-2">Select files (JPEG, PNG, PDF)</span>
+                                                <button type="button" class="btn btn-sm btn-primary" id="choose-file" data-bs-toggle="tooltip" title="Add new files">
                                                     <i class="bi bi-plus-circle me-1"></i>Add Files
                                                 </button>
                                             </div>
@@ -274,15 +277,12 @@
                                 </div>
                                 {!! html()->form()->close() !!}
                             </div>
-
-
-                        </div>
                         </div>
                     </div>
                 </div>
+            </div>
         </section>
     </div>
-
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -307,9 +307,12 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f8f9fa;
+            margin: 0;
         }
         .content-wrapper {
-            padding: 1.5rem;
+            padding: 2rem 0;
+            max-width: 100%;
+            margin: 0;
         }
         .card {
             border-radius: 0.75rem;
@@ -420,7 +423,11 @@
         }
         @media (max-width: 767px) {
             .content-wrapper {
-                padding: 1rem;
+                padding: 1rem 0;
+            }
+            .section {
+                margin-left: 0.5rem !important;
+                margin-right: 0.5rem !important;
             }
             .card-body {
                 padding: 1rem;
@@ -466,7 +473,7 @@
                 });
                 const remarkInput = document.getElementById('remark');
                 quill.on('text-change', () => {
-                    remarkInput.value = quill.root.innerHTML; // Store HTML content
+                    remarkInput.value = quill.root.innerHTML;
                     console.log('Quill content:', remarkInput.value);
                 });
             } catch (error) {
@@ -484,15 +491,17 @@
 
                 const status = parseInt(document.querySelector('#status').value);
                 const remarkInput = document.getElementById('remark');
-                const quill = new Quill('#quill-editor');
-                remarkInput.value = quill.root.innerHTML; // Store HTML content
+                const quill = document.querySelector('.ql-editor').innerHTML;
 
-                // Validate required fields
-                if (!status) {
+                remarkInput.value = quill;
+
+                // Client-side validation for remark
+                const plainText = quill.replace(/<[^>]+>/g, '').trim();
+                if (!plainText) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: 'Please select a status',
+                        text: 'Remark cannot be empty.',
                     });
                     return;
                 }

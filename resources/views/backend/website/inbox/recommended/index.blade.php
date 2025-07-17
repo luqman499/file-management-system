@@ -1,5 +1,4 @@
 @extends('backend.layout.auth')
-
 @section('backend')
     <div class="content-wrapper">
         <style>
@@ -12,7 +11,7 @@
                 z-index: 1055;
             }
         </style>
-        <section class="section me-4">
+        <section class="section ms-4 me-4">
             <div class="content">
                 <!-- Page Header -->
                 <div class="row">
@@ -23,7 +22,7 @@
                                 <div class="page-table-header mb-4">
                                     <div class="row align-items-center">
                                         <div class="col">
-                                            <h3 class="font-weight-bold">  Recommended Tasks ( {{ $models->count() }} )</h3>
+                                            <h3 class="font-weight-bold">Recommended Tasks ( {{ $models->count() }} )</h3>
                                         </div>
                                     </div>
                                 </div>
@@ -45,22 +44,25 @@
                                         @forelse($models as $model)
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
-                                                <td>{{ $model->dispatch->title ?? 'N/A' }}</td>
-                                                <td>{{ $model->dispatch->office->title ?? 'N/A' }}</td>
-                                                <td>{{ $model->dispatch->data ?? 'N/A' }}</td>
-                                                <td>{{ $model->dispatch->time ?? 'N/A' }}</td>
-                                                <td>{{ $model->dispatch->dispatch_number ?? 'N/A' }}</td>
-                                                <td>{{ $model->dispatch->folder->title ?? 'N/A' }}</td>
+                                                <td>{{ optional($model->dispatch)->title ?? 'N/A' }}</td>
+                                                <td>{{ optional($model->dispatch)->office->title ?? 'N/A' }}</td>
+                                                <td>{{ optional($model->dispatch)->date ?? 'N/A' }}</td>
+                                                <td>{{ optional($model->dispatch)->time ?? 'N/A' }}</td>
+                                                <td>{{ optional($model->dispatch)->dispatch_number ?? 'N/A' }}</td>
+                                                <td>{{ optional($model->dispatch)->folder->title ?? 'N/A' }}</td>
                                                 <td class="text-center">
                                                     <div class="d-flex justify-content-center gap-3">
-                                                        <a href="{{ route('dispatch.show', $model->id) }}">View</a>
-                                                        </a>
+                                                        @if($model->dispatch)
+                                                            <a href="{{ route('dispatch.show', $model->dispatch->id) }}">View</a>
+                                                        @else
+                                                            <span class="text-muted">Dispatch not found</span>
+                                                        @endif
                                                     </div>
                                                 </td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="9" class="text-center"><strong>No records found...</strong></td>
+                                                <td colspan="8" class="text-center"><strong>No records found...</strong></td>
                                             </tr>
                                         @endforelse
                                         </tbody>
@@ -72,5 +74,5 @@
                 </div>
             </div>
         </section>
+    </div>
 @endsection
-
