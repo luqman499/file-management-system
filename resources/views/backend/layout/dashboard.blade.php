@@ -1,6 +1,6 @@
 @extends('backend.layout.auth')
 @section('backend')
-  
+
 <!-- Content -->
 
 <div class="container-xxl flex-grow-1 container-p-y">
@@ -10,7 +10,7 @@
           <div class="d-flex align-items-end row">
             <div class="col-sm-7">
               <div class="card-body">
-                <h5 class="card-title text-primary">Congratulations Tariq Husyn Taj! 🎉</h5>
+                <h5 class="card-title text-primary">Congratulations Luqman Hussain ..</h5>
                 <p class="mb-4">
                   You have done <span class="fw-bold">72%</span> more files move today. Check your new files move in
                   your profile.

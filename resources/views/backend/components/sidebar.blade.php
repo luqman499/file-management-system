@@ -184,43 +184,48 @@
     <i class="menu-icon tf-icons bx bx-cube-alt"></i>
     <div>Inbox</div>
   </a>
+
     <ul class="menu-sub">
-        <li class="menu-item">
-            <a href="{{ route('dispatches.all') }}" class="menu-link">
-                All
-                <span class="badge bg-primary ms-2">{{ $dispatchCounts['all'] ?? 0 }}</span>
-            </a>
-        </li>
-        <li class="menu-item">
-            <a href="{{ route('dispatches.returned') }}" class="menu-link">
-                Returned
-                <span class="badge bg-warning ms-2">{{ $dispatchCounts['returned'] ?? 0 }}</span>
-            </a>
-        </li>
-        <li class="menu-item">
-            <a href="{{ route('dispatches.rejected') }}" class="menu-link">
-                Rejected
-                <span class="badge bg-danger ms-2">{{ $dispatchCounts['rejected'] ?? 0 }}</span>
-            </a>
-        </li>
-        <li class="menu-item">
-            <a href="{{ route('dispatches.recommended') }}" class="menu-link">
-                Recommend
-                <span class="badge bg-info ms-2">{{ $dispatchCounts['recommended'] ?? 0 }}</span>
-            </a>
-        </li>
-        <li class="menu-item">
-            <a href="{{ route('dispatches.approved') }}" class="menu-link">
-                Approved
-                <span class="badge bg-success ms-2">{{ $dispatchCounts['approved'] ?? 0 }}</span>
-            </a>
-        </li>
-        <li class="menu-item">
-            <a href="{{ route('dispatches.assigned_to_me') }}" class="menu-link">
-                Assigned
-                <span class="badge bg-secondary ms-2">{{ $dispatchCounts['assigned_to_me'] ?? 0 }}</span>
-            </a>
-        </li>
+        @can('view-all-tasks')
+            <li class="menu-item">
+                <a href="{{ route('dispatches.all') }}" class="menu-link">
+                    All
+                    <span class="badge bg-primary ms-2">{{ $dispatchCounts['all'] ?? 0 }}</span>
+                </a>
+            </li>
+        @endcan
+        @can('view-assigned-tasks')
+            <li class="menu-item">
+                <a href="{{ route('dispatches.returned') }}" class="menu-link">
+                    Returned
+                    <span class="badge bg-warning ms-2">{{ $dispatchCounts['returned'] ?? 0 }}</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{{ route('dispatches.rejected') }}" class="menu-link">
+                    Rejected
+                    <span class="badge bg-danger ms-2">{{ $dispatchCounts['rejected'] ?? 0 }}</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{{ route('dispatches.recommended') }}" class="menu-link">
+                    Recommend
+                    <span class="badge bg-info ms-2">{{ $dispatchCounts['recommended'] ?? 0 }}</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{{ route('dispatches.approved') }}" class="menu-link">
+                    Approved
+                    <span class="badge bg-success ms-2">{{ $dispatchCounts['approved'] ?? 0 }}</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="{{ route('dispatches.assigned_to_me') }}" class="menu-link">
+                    Assigned
+                    <span class="badge bg-secondary ms-2">{{ $dispatchCounts['assigned_to_me'] ?? 0 }}</span>
+                </a>
+            </li>
+        @endcan
     </ul>
 </li>
     </ul>

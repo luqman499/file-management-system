@@ -16,9 +16,22 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Spatie\Permission\Exceptions\UnauthorizedException;
 
 class DispatchController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:view-dispatch')->only(['index', 'show']);
+        $this->middleware('permission:view-all-tasks')->only(['allTasks']);
+        $this->middleware('permission:view-assigned-tasks')->only(['assigned', 'approved', 'rejected', 'returned', 'recommended']);
+        $this->middleware('permission:view-admin-inbox')->only(['adminInbox']);
+        $this->middleware('permission:create-dispatch')->only(['create', 'store']);
+        $this->middleware('permission:edit-dispatch')->only(['edit', 'update']);
+        $this->middleware('permission:delete-dispatch')->only(['delete']);
+        $this->middleware('permission:approve-task|reject-task|recommend-task|return-task')->only(['updateStatus']);
+    }
+
     public function index()
     {
         $models = Dispatch::with('user', 'office', 'flag', 'folder')
@@ -71,7 +84,6 @@ class DispatchController extends Controller
             $model->status = $request->status ?? '0';
             $model->save();
 
-            // Handle file
             if ($request->hasFile('attachments')) {
                 foreach ($request->file('attachments') as $attachment) {
                     $fileName = 'dispatch_document_' . uniqid() . '.' . $attachment->getClientOriginalExtension();
@@ -84,7 +96,6 @@ class DispatchController extends Controller
                     ]);
                 }
             }
-            // Handle selected users
             if ($request->filled('selected_users')) {
                 foreach ($request->selected_users as $user_id) {
                     DispatchDetail::create([
@@ -124,10 +135,9 @@ class DispatchController extends Controller
                 'offices' => Office::pluck('title', 'id'),
                 'users' => User::with(['office:id,title', 'department:id,name'])->get()
             ]);
-
         } catch (\Exception $e) {
             Log::error('Dispatch show error: ' . $e->getMessage());
-            return redirect()->route('dispatch.index')->with('error', 'Dispatch not found');
+            return redirect()->route('dispatches.index')->with('error', 'Dispatch not found');
         }
     }
 
@@ -174,7 +184,6 @@ class DispatchController extends Controller
             $model->received_from = $request->received_from;
             $model->save();
 
-            // Handle attachments
             if ($request->hasFile('attachments')) {
                 foreach ($request->file('attachments') as $attachment) {
                     $fileName = 'dispatch_document_' . uniqid() . '.' . $attachment->getClientOriginalExtension();
@@ -188,7 +197,6 @@ class DispatchController extends Controller
                 }
             }
 
-            // Handle selected users
             if ($request->filled('selected_users')) {
                 DispatchDetail::where('dispatch_id', $model->id)->delete();
                 foreach ($request->selected_users as $user_id) {
@@ -201,7 +209,7 @@ class DispatchController extends Controller
             }
 
             flash()->success('Dispatch updated successfully!');
-            return redirect()->route('dispatch.index');
+            return redirect()->route('dispatches.index');
         } catch (\Exception $e) {
             flash()->error('Something went wrong: ' . $e->getMessage());
             return back()->withInput();
@@ -214,7 +222,7 @@ class DispatchController extends Controller
             $model = Dispatch::find($id);
             $model->delete();
             session()->flash('success', 'Dispatch deleted successfully!');
-            return redirect()->route('dispatch.index');
+            return redirect()->route('dispatches.index');
         } catch (\Exception $e) {
             session()->flash('error', 'Failed to delete dispatch: ' . $e->getMessage());
             return back();
@@ -225,12 +233,10 @@ class DispatchController extends Controller
     {
         DB::beginTransaction();
         try {
-            // Validate the request
             $validated = $request->validate([
                 'remark' => [
                     'required',
                     function ($attribute, $value, $fail) {
-                        // Strip HTML tags and trim whitespace
                         $plainText = strip_tags($value);
                         if (trim($plainText) === '') {
                             $fail('The remark field must contain meaningful text.');
@@ -247,12 +253,20 @@ class DispatchController extends Controller
             $status = $request->status;
             $selectedUsers = $request->selected_users ?? [];
 
-            // Clean the remark to remove empty HTML tags
+            $permissionMap = [
+                1 => 'approve-task',
+                2 => 'reject-task',
+                3 => 'return-task',
+                4 => 'recommend-task',
+            ];
+            if (!auth()->user()->hasPermissionTo($permissionMap[$status])) {
+                throw new UnauthorizedException(403, 'You do not have permission to perform this action.');
+            }
+
             $remark = $request->remark;
             $remark = preg_replace('/<p>\s*(<br\s*\/?>)*\s*<\/p>/i', '', $remark);
             $remark = trim(strip_tags($remark)) !== '' ? $remark : null;
 
-            // Create dispatch detail for current user action
             $dispatchDetail = DispatchDetail::create([
                 'dispatch_id' => $dispatch->id,
                 'user_id' => auth()->id(),
@@ -260,7 +274,6 @@ class DispatchController extends Controller
                 'status' => $status,
             ]);
 
-            // Handle attachments
             if ($request->hasFile('attachment')) {
                 foreach ($request->file('attachment') as $attachment) {
                     $fileName = 'dispatch_detail_document_' . uniqid() . '.' . $attachment->getClientOriginalExtension();
@@ -274,24 +287,23 @@ class DispatchController extends Controller
                 }
             }
 
-            // Handle status-specific actions
             switch ($status) {
-                case 4: // Recommended - create new tasks for selected users
+                case 4: // Recommended
                     foreach ($selectedUsers as $user_id) {
                         if (User::where('id', $user_id)->exists()) {
                             DispatchDetail::create([
                                 'dispatch_id' => $dispatch->id,
                                 'user_id' => $user_id,
-                                'status' => 0, // Pending status for new assignments
+                                'status' => 0,
                             ]);
                         }
                     }
                     break;
 
-                case 3: // Returned - assign to the previous user
+                case 3: // Returned
                     $previousDetail = DispatchDetail::where('dispatch_id', $dispatch->id)
                         ->where('id', '!=', $dispatchDetail->id)
-                        ->where('user_id', '!=', auth()->id()) // Exclude current user
+                        ->where('user_id', '!=', auth()->id())
                         ->orderBy('created_at', 'desc')
                         ->first();
 
@@ -299,7 +311,7 @@ class DispatchController extends Controller
                         DispatchDetail::create([
                             'dispatch_id' => $dispatch->id,
                             'user_id' => $previousDetail->user_id,
-                            'status' => 0, // Pending status for the previous user
+                            'status' => 0,
                             'remark' => 'Returned for revision',
                         ]);
                     } else {
@@ -312,7 +324,6 @@ class DispatchController extends Controller
 
                 case 1: // Approved
                 case 2: // Rejected
-                    // No additional action needed
                     break;
             }
 
@@ -341,14 +352,26 @@ class DispatchController extends Controller
 
     public static function getSidebarCounts()
     {
-        return [
-            'all' => DispatchDetail::where('user_id', auth()->id())->count(),
-            'returned' => DispatchDetail::ofReturned()->where('user_id', auth()->id())->count(),
-            'rejected' => DispatchDetail::ofRejected()->where('user_id', auth()->id())->count(),
-            'recommended' => DispatchDetail::ofRecommended()->where('user_id', auth()->id())->count(),
-            'approved' => DispatchDetail::ofApproved()->where('user_id', auth()->id())->count(),
-            'assigned_to_me' => DispatchDetail::ofAssignedToMe()->count(),
+        $counts = [
+            'all' => 0,
+            'returned' => 0,
+            'rejected' => 0,
+            'recommended' => 0,
+            'approved' => 0,
+            'assigned_to_me' => 0,
         ];
+
+        if (auth()->user()->hasPermissionTo('view-all-tasks')) {
+            $counts['all'] = DispatchDetail::where('user_id', auth()->id())->count();
+        }
+        if (auth()->user()->hasPermissionTo('view-assigned-tasks')) {
+            $counts['returned'] = DispatchDetail::ofReturned()->where('user_id', auth()->id())->count();
+            $counts['rejected'] = DispatchDetail::ofRejected()->where('user_id', auth()->id())->count();
+            $counts['recommended'] = DispatchDetail::ofRecommended()->where('user_id', auth()->id())->count();
+            $counts['approved'] = DispatchDetail::ofApproved()->where('user_id', auth()->id())->count();
+            $counts['assigned_to_me'] = DispatchDetail::ofAssignedToMe()->count();
+        }
+        return $counts;
     }
 
     public function assigned()
@@ -415,3 +438,4 @@ class DispatchController extends Controller
         return view('backend.website.inbox.all.index', compact('models'));
     }
 }
+

@@ -1,6 +1,10 @@
 <?php
 
 return [
+    'providers' => [
+        // Other providers...
+        Spatie\Permission\PermissionServiceProvider::class,
+    ],
 
     /*
     |--------------------------------------------------------------------------
